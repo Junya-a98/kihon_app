@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>演習問題</title>
+</head>
+<body>
+  <h2>演習問題</h2>
+  <form method="post">
+    {% csrf_token %}
+    <p>{{ question.text|linebreaksbr }}</p>
+
+    {% for label, choice in choices %}
+  <div>
+    <label>
+      <input type="radio" name="choice" value="{{ label }}">
+      {{ choice }}
+    </label>
+  </div>
+{% endfor %}
+
+    <input type="hidden" name="qid" value="{{ question.id }}">
+    <button type="submit">解答する</button>
+  </form>
+</body>
+</html>
+

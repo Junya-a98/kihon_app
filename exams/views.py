@@ -1,23 +1,30 @@
-from django.shortcuts import render
-from django.db import models
-class Question(models.Model):
-    """午前試験タイプ（四択）だけを想定した最小モデル"""
-    CATEGORY_CHOICES = [
-        ('tech', 'テクノロジ系'),
-        ('mgmt', 'マネジメント系'),
-        ('strat', 'ストラテジ系'),
+import random
+from django.shortcuts import render, redirect
+from .models import Question
+
+def take_quiz(request):
+    """
+    GET  : ランダムに 1 問出題
+    POST : 回答を採点して結果画面へ
+    """
+    if request.method == "POST":
+        qid   = int(request.POST["qid"])
+        guess = request.POST.get("choice")  # '' の可能性もある
+        q     = Question.objects.get(id=qid)
+        result = (guess == q.correct)
+        context = {
+            "question": q,
+            "guess": guess,
+            "result": result,
+        }
+        return render(request, "exams/result.html", context)
+
+    # --- GET ---
+    q = random.choice(Question.objects.all())
+    choices = [
+        ('a', q.choice_a),
+        ('b', q.choice_b),
+        ('c', q.choice_c),
+        ('d', q.choice_d),
     ]
-
-    text        = models.TextField('問題文')
-    choice_a    = models.CharField('選択肢 A', max_length=255)
-    choice_b    = models.CharField('選択肢 B', max_length=255)
-    choice_c    = models.CharField('選択肢 C', max_length=255)
-    choice_d    = models.CharField('選択肢 D', max_length=255)
-    correct     = models.CharField('正解', max_length=1,
-                                   choices=[('a','A'), ('b','B'), ('c','C'), ('d','D')])
-    category    = models.CharField('分野', max_length=5, choices=CATEGORY_CHOICES, default='tech')
-
-    def __str__(self) -> str:
-        return self.text[:30]  # 一覧表示用
-
-# Create your views here.
+    return render(request, "exams/quiz.html", {"question": q, "choices": choices})

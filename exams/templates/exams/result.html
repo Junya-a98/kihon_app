@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>結果</title>
+</head>
+<body>
+  <h2>結果: {{ result|yesno:"正解,不正解" }}</h2>
+
+  <p><strong>あなたの回答:</strong> {{ guess|default:"未選択" }}</p>
+  <p><strong>正解:</strong> {{ question.correct|upper }}</p>
+
+  <p>{{ question.explanation }}</p>
+
+  <a href="{% url 'take_quiz' %}">次の問題へ</a>
+</body>
+</html>
+
