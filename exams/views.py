@@ -1,6 +1,19 @@
 import random
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
 from django.shortcuts import render, redirect
-from .models import Question
+from .models import Question, Answer
+
+
+@login_required
+def my_history(request):
+    answers = (Answer.objects
+               .filter(user=request.user)
+               .select_related("question")[:100])   # 直近100件
+    return render(request, "exams/my_history.html", {"answers": answers})
+
+
 
 # ---------- ① トップページ ----------
 def home(request):
@@ -51,6 +64,13 @@ def take_quiz(request):
         q     = Question.objects.get(id=qid)
         is_ok = (guess == q.correct)
 
+        Answer.objects.create(
+        user       = request.user if request.user.is_authenticated else None,
+        question   = q,
+        is_correct = is_ok,
+        guess      = guess,
+    )
+
         sess = request.session               # 短縮参照
         sess.setdefault("solved_questions", [])
         sess.setdefault("results", [])
@@ -61,8 +81,7 @@ def take_quiz(request):
         sess["guesses"][str(qid)] = guess    # ★ ここで保存
         sess.modified = True
 
- 
-
+    
     # 未出題を絞り込む
     unsolved = (Question.objects
                 .filter(category=cat)
@@ -85,6 +104,8 @@ def take_quiz(request):
         "current": len(solved) + 1,
         "total": total,
     }
+
+
     return render(request, "exams/quiz.html", context)
 
 
@@ -116,3 +137,17 @@ def show_result(request):
 def reset_session(request):
     request.session.flush()
     return redirect("home")
+
+# ----------⑥ユーザー登録---------
+def signup(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)          # 作ったら即ログイン
+            return redirect("home")
+    else:
+        form = UserCreationForm()
+    return render(request, "exams/signup.html", {"form": form})
+
+

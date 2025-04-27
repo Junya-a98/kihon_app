@@ -1,5 +1,22 @@
 from django.db import models
 
+# exams/models.py
+from django.conf import settings
+from django.db import models
+
+class Answer(models.Model):
+    user      = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True,
+        on_delete=models.SET_NULL
+    )
+    question  = models.ForeignKey("Question", on_delete=models.CASCADE)
+    is_correct = models.BooleanField()
+    guess     = models.CharField(max_length=1)        # a/b/c/d
+    solved_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-solved_at"]
+
 class Question(models.Model):
     CATEGORY_CHOICES = [
         ('tech', 'テクノロジ系'),

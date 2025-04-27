@@ -1,0 +1,17 @@
+<h2>{{ request.user.username }} さんの解答履歴</h2>
+<table border="1" cellpadding="6">
+  <tr><th>日時</th><th>問題</th><th>あなた</th><th>正否</th></tr>
+  {% for a in answers %}
+    <tr>
+      <td>{{ a.solved_at|date:"Y-m-d H:i" }}</td>
+      <td>{{ a.question.text|truncatewords:8 }}</td>
+      <td>{{ a.guess|upper }}</td>
+      <td>{% if a.is_correct %}◎{% else %}×{% endif %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="4">まだ履歴がありません</td></tr>
+  {% endfor %}
+</table>
+
+<p><a href="{% url 'home' %}">ホームへ</a></p>
+

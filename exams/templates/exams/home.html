@@ -18,6 +18,16 @@
       {% endfor %}
     </select>
   </label>
-
   <button type="submit">演習スタート</button>
 </form>
+
+{% if request.user.is_authenticated %}
+  <p>ようこそ {{ request.user.username }} さん |
+     <a href="{% url 'history' %}">解答履歴</a> |
+     <a href="{% url 'logout' %}?next={{ request.path }}">ログアウト</a>
+  </p>
+{% else %}
+  <p><a href="{% url 'login' %}?next={{ request.path }}">ログイン</a></p>
+  <a href="{% url 'signup' %}?next={{ request.path }}">新規登録</a>
+{% endif %}
+
