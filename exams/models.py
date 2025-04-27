@@ -15,6 +15,9 @@ class Question(models.Model):
     correct     = models.CharField('正解', max_length=1,
                                    choices=[('a','A'), ('b','B'), ('c','C'), ('d','D')])
     category    = models.CharField('分野', max_length=5, choices=CATEGORY_CHOICES, default='tech')
-
+    category = models.CharField(max_length=32, default='unknown')   # 既存
+    # 追加すると便利
+    exam_year  = models.CharField(max_length=8, default='')
+    exam_part  = models.CharField(max_length=16, default='')
     def __str__(self):
         return self.text[:30]

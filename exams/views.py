@@ -2,72 +2,117 @@ import random
 from django.shortcuts import render, redirect
 from .models import Question
 
+# ---------- ① トップページ ----------
 def home(request):
-    return render(request, "exams/home.html")
+    years = (Question.objects
+             .values_list("exam_year", flat=True)
+             .distinct()
+             .order_by("-exam_year"))
 
+    nums = [5, 10, 15, 20]          # ← ここで用意して渡す
+
+    return render(request, "exams/home.html", {
+        "years": years,
+        "nums":  nums,
+    })
+
+
+# ---------- ② 演習スタート ----------
+def start_quiz(request):
+    """
+    POST: 年度・科目・出題数を受け取ってセッション初期化
+    """
+    if request.method != "POST":
+        return redirect("home")
+
+    year  = request.POST["year"]           # 例: "R06"
+    part  = request.POST.get("part", "A")  # 今回は A 固定でも OK
+    total = int(request.POST.get("num", 20))
+
+    request.session["solved_questions"] = []
+    request.session["results"] = []
+    request.session["cat"]    = f"FE_{year}{part}"
+    request.session["total"]  = total
+    request.session.modified  = True
+    return redirect("take_quiz")
+
+
+# ---------- ③ 問題を出す ----------
 def take_quiz(request):
-    """
-    GET  : ランダムに未出題の1問を出題
-    POST : 回答を記録し、次の問題へ or 結果へ
-    """
+    # 進捗
+    solved = request.session.get("solved_questions", [])
+    total  = request.session.get("total", 0)
+    cat    = request.session.get("cat", "")
+
+    # POST（回答が返ってきた）
     if request.method == "POST":
-        qid = int(request.POST["qid"])
+        qid   = int(request.POST["qid"])
         guess = request.POST.get("choice")
-        q = Question.objects.get(id=qid)
-        result = (guess == q.correct)
+        q     = Question.objects.get(id=qid)
+        is_ok = (guess == q.correct)
 
-        # セッションに記録
-        if 'solved_questions' not in request.session:
-            request.session['solved_questions'] = []
-        if 'results' not in request.session:
-            request.session['results'] = []
+        sess = request.session               # 短縮参照
+        sess.setdefault("solved_questions", [])
+        sess.setdefault("results", [])
+        sess.setdefault("guesses", {})       # ★ 追加：qid → guess
 
-        request.session['solved_questions'].append(qid)
-        request.session['results'].append(result)
-        request.session.modified = True
+        sess["solved_questions"].append(qid)
+        sess["results"].append(is_ok)
+        sess["guesses"][str(qid)] = guess    # ★ ここで保存
+        sess.modified = True
 
-    # --- GET ---
-    # 出題済みを除く
-    solved = request.session.get('solved_questions', [])
-    unsolved = Question.objects.exclude(id__in=solved)
+ 
 
-    if not unsolved.exists():
-        return redirect('show_result')  # 全問終了したら結果ページへ
+    # 未出題を絞り込む
+    unsolved = (Question.objects
+                .filter(category=cat)
+                .exclude(id__in=solved)
+                [: max(total - len(solved), 0)])
 
-    q = random.choice(unsolved)
+    # 全問終わった？
+    if not unsolved.exists() or len(solved) >= total:
+        return redirect("show_result")
+
+    # 次の1問をランダムで
+    q = random.choice(list(unsolved))
     choices = [
-        ('a', q.choice_a),
-        ('b', q.choice_b),
-        ('c', q.choice_c),
-        ('d', q.choice_d),
+        ("a", q.choice_a), ("b", q.choice_b),
+        ("c", q.choice_c), ("d", q.choice_d),
     ]
-    return render(request, "exams/quiz.html", {"question": q, "choices": choices})
+    context = {
+        "question": q,
+        "choices": choices,
+        "current": len(solved) + 1,
+        "total": total,
+    }
+    return render(request, "exams/quiz.html", context)
 
+
+# ---------- ④ 結果 ----------
 def show_result(request):
-    results = request.session.get('results', [])
-    correct_count = sum(results)
-    total = len(results)
-    solved_ids = request.session.get('solved_questions', [])
-    solved_questions = Question.objects.filter(id__in=solved_ids)
+    ids      = request.session.get("solved_questions", [])
+    results  = request.session.get("results", [])      # True / False
+    guesses  = request.session.get("guesses", {})      # qid → a/b/c/d
 
-    # 正誤をペアにしてまとめる
     question_results = []
-    for q, res in zip(solved_questions, results):
+    for qid, ok in zip(ids, results):
+        q = Question.objects.get(id=qid)
         question_results.append({
-            'text': q.text,
-            'correct': q.correct,
-            'result': res
+            "text":    q.text,
+            "correct": q.correct,
+            "guess":   guesses.get(str(qid), ""),
+            "is_ok":   ok,
         })
 
     context = {
-        "correct_count": correct_count,
-        "total": total,
+        "correct_count": sum(results),
+        "total":         len(results),
         "question_results": question_results,
     }
     return render(request, "exams/show_result.html", context)
 
 
+# ---------- ⑤ セッションリセット ----------
 def reset_session(request):
-    request.session.flush()  # セッション全部リセット
-    return redirect('home')  # トップページに戻る
-
+    request.session.flush()
+    return redirect("home")

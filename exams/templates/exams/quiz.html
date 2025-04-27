@@ -2,26 +2,39 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>演習問題</title>
+  <title>演習 {{ current }} / {{ total }}</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; line-height: 1.6; }
+    .qnum { font-size: 1.2rem; margin-bottom: .5rem; }
+    .radio-block { margin: .4rem 0; }
+    button { padding: .4rem 1rem; }
+  </style>
 </head>
 <body>
-  <h2>演習問題</h2>
-  <form method="post">
-    {% csrf_token %}
-    <p>{{ question.text|linebreaksbr }}</p>
 
+  <!-- 進捗バー -->
+  <div class="qnum">問題 {{ current }} / {{ total }}</div>
+  <progress value="{{ current }}" max="{{ total }}" style="width:100%"></progress>
+
+  <form method="post" style="margin-top:1rem">
+    {% csrf_token %}
+
+    <!-- 問題文 -->
+    <p style="white-space:pre-line">{{ question.text }}</p>
+
+    <!-- 選択肢 -->
     {% for label, choice in choices %}
-  <div>
-    <label>
-      <input type="radio" name="choice" value="{{ label }}">
-      {{ choice }}
-    </label>
-  </div>
-{% endfor %}
+      <div class="radio-block">
+        <label>
+          <input type="radio" name="choice" value="{{ label }}">
+          {{ choice }}
+        </label>
+      </div>
+    {% endfor %}
 
     <input type="hidden" name="qid" value="{{ question.id }}">
     <button type="submit">解答する</button>
   </form>
+
 </body>
 </html>
-

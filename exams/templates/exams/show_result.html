@@ -2,18 +2,20 @@
 <p>正解数：{{ correct_count }} / {{ total }}</p>
 
 <hr>
-
 <h3>各問題の結果</h3>
-<ul>
-  {% for q in question_results %}
-    <li>
-      問題文：{{ q.text|truncatewords:10 }}<br>
-      あなたの回答：{{ q.result|yesno:"正解,不正解" }}（正答：{{ q.correct|upper }})
-    </li>
-  {% endfor %}
-</ul>
+<ol>
+{% for q in question_results %}
+  <li>
+    {{ q.text|truncatewords:10 }}<br>
+    {% if q.is_ok %}
+      <span style="color:green;">◎ 正解（あなた: {{ q.guess|upper }})</span>
+    {% else %}
+      <span style="color:red;">× 不正解（あなた: {{ q.guess|upper }} ／ 正: {{ q.correct|upper }})</span>
+    {% endif %}
+  </li>
+{% endfor %}
+</ol>
 
 <hr>
-<a href="{% url 'reset_session' %}">もう一度挑戦する</a><br>
+<a href="{% url 'reset_session' %}">もう一度挑戦する</a> /
 <a href="{% url 'home' %}">トップへ戻る</a>
-

@@ -1,4 +1,23 @@
-<h1>基本情報技術者試験 演習サイト</h1>
-<a href="{% url 'take_quiz' %}">演習をスタート</a><br>
-<a href="{% url 'show_result' %}">結果を見る</a>
+<h1>基本情報技術者 演習サイト</h1>
 
+<form action="{% url 'start' %}" method="post">
+  {% csrf_token %}
+
+  <label>年度を選ぶ:
+    <select name="year">
+      {% for y in years %}
+        <option value="{{ y }}">{{ y }}</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <label>出題数:
+    <select name="num">
+      {% for n in nums %}           {# ← split をやめて nums を回す #}
+        <option value="{{ n }}">{{ n }}問</option>
+      {% endfor %}
+    </select>
+  </label>
+
+  <button type="submit">演習スタート</button>
+</form>
