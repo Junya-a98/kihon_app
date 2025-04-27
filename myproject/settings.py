@@ -117,8 +117,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [ BASE_DIR / "static" ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- 認証系設定 -----------------------------
+LOGIN_URL = "login"           # → /accounts/login/
+LOGOUT_REDIRECT_URL = "home"  # ログアウト後
+LOGIN_REDIRECT_URL = "home"   # ★ これが無いと profile に飛ぶ
+
+
+LOGOUT_REDIRECT_URL = "home"   # URL 名 or 実パス "/" どちらでも可
+

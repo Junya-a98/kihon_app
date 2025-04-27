@@ -1,3 +1,5 @@
+{% extends "exams/base.html" %}
+{% block content %}
 <h2>演習結果</h2>
 <p>正解数：{{ correct_count }} / {{ total }}</p>
 
@@ -19,3 +21,5 @@
 <hr>
 <a href="{% url 'reset_session' %}">もう一度挑戦する</a> /
 <a href="{% url 'home' %}">トップへ戻る</a>
+
+{% endblock %}

@@ -2,6 +2,7 @@ import random
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from .models import Question, Answer
 
@@ -60,26 +61,47 @@ def take_quiz(request):
     # POST（回答が返ってきた）
     if request.method == "POST":
         qid   = int(request.POST["qid"])
-        guess = request.POST.get("choice")
+        guess = request.POST.get("choice") or ""
         q     = Question.objects.get(id=qid)
+
+        # --- 未選択なら同じ問題を再表示 -----------------
+        if not guess:
+            choices = [
+                ("a", q.choice_a), ("b", q.choice_b),
+                ("c", q.choice_c), ("d", q.choice_d),
+            ]
+            messages.error(request, "選択肢を選んでください。")
+            return render(
+                request,
+                "exams/quiz.html",
+                {
+                    "question": q,
+                    "choices":  choices,
+                    "current":  len(request.session.get("solved_questions", [])) + 1,
+                    "total":    request.session.get("total", 0),
+                },
+            )
+
+        # --- 回答がある場合だけここに来る ---------------
         is_ok = (guess == q.correct)
 
-        Answer.objects.create(
-        user       = request.user if request.user.is_authenticated else None,
-        question   = q,
-        is_correct = is_ok,
-        guess      = guess,
-    )
+        # ログインしていれば履歴保存
+        if request.user.is_authenticated:
+            Answer.objects.create(
+                user       = request.user,
+                question   = q,
+                is_correct = is_ok,
+                guess      = guess,
+            )
 
-        sess = request.session               # 短縮参照
-        sess.setdefault("solved_questions", [])
-        sess.setdefault("results", [])
-        sess.setdefault("guesses", {})       # ★ 追加：qid → guess
-
-        sess["solved_questions"].append(qid)
-        sess["results"].append(is_ok)
-        sess["guesses"][str(qid)] = guess    # ★ ここで保存
+        # セッション更新
+        sess = request.session
+        sess.setdefault("solved_questions", []).append(qid)
+        sess.setdefault("results", []).append(is_ok)
+        sess.setdefault("guesses", {})[str(qid)] = guess
         sess.modified = True
+
+
 
     
     # 未出題を絞り込む

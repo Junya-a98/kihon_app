@@ -1,33 +1,33 @@
-<h1>基本情報技術者 演習サイト</h1>
+{% extends "exams/base.html" %}
+{% block title %}トップ | FE演習{% endblock %}
+{% block content %}
 
-<form action="{% url 'start' %}" method="post">
+<h1 class="mb-4">基本情報技術者 演習サイト</h1>
+
+<form action="{% url 'start' %}" method="post" class="row g-3">
   {% csrf_token %}
 
-  <label>年度を選ぶ:
-    <select name="year">
+  <div class="col-md-4">
+    <label class="form-label">年度を選ぶ</label>
+    <select name="year" class="form-select">
       {% for y in years %}
         <option value="{{ y }}">{{ y }}</option>
       {% endfor %}
     </select>
-  </label>
+  </div>
 
-  <label>出題数:
-    <select name="num">
-      {% for n in nums %}           {# ← split をやめて nums を回す #}
+  <div class="col-md-4">
+    <label class="form-label">出題数</label>
+    <select name="num" class="form-select">
+      {% for n in nums %}
         <option value="{{ n }}">{{ n }}問</option>
       {% endfor %}
     </select>
-  </label>
-  <button type="submit">演習スタート</button>
+  </div>
+
+  <div class="col-12">
+    <button class="btn btn-primary">演習スタート</button>
+  </div>
 </form>
 
-{% if request.user.is_authenticated %}
-  <p>ようこそ {{ request.user.username }} さん |
-     <a href="{% url 'history' %}">解答履歴</a> |
-     <a href="{% url 'logout' %}?next={{ request.path }}">ログアウト</a>
-  </p>
-{% else %}
-  <p><a href="{% url 'login' %}?next={{ request.path }}">ログイン</a></p>
-  <a href="{% url 'signup' %}?next={{ request.path }}">新規登録</a>
-{% endif %}
-
+{% endblock %}

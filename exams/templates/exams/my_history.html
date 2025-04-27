@@ -1,3 +1,6 @@
+{% extends "exams/base.html" %}
+{% block title %}ページタイトル{% endblock %}
+{% block content %}
 <h2>{{ request.user.username }} さんの解答履歴</h2>
 <table border="1" cellpadding="6">
   <tr><th>日時</th><th>問題</th><th>あなた</th><th>正否</th></tr>
@@ -15,3 +18,4 @@
 
 <p><a href="{% url 'home' %}">ホームへ</a></p>
 
+{% endblock %}

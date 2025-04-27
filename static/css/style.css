@@ -1,0 +1,12 @@
+/* 全ページ共通の軽い装飾 */
+body { font-family: "Helvetica Neue", sans-serif; }
+
+.progress { height: 1.2rem; }
+.progress-bar { background-color: #0d6efd; }
+
+.radio-block { margin-bottom: 0.5rem; }
+
+.table-history td { vertical-align: middle; }
+.table-history .ok  { color: green; }
+.table-history .ng  { color: red; }
+
