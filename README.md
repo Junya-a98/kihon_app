@@ -22,13 +22,12 @@
 
 ```bash
 git clone https://github.com/Junya-a98/kihon_app.git
-cd リポジトリ名
 
-2. 仮想環境を作成してアクティベート
+2. 仮想環境を作成してアクティベート(任意)
 python3 -m venv venv
 source venv/bin/activate
 
-3. パッケージをインストール
+3. パッケージをインストール（任意）
 pip install -r requirements.txt
 # もしくは
 poetry install
