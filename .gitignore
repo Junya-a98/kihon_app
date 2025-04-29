@@ -1,10 +1,39 @@
+# ---- Python / Django ----
 __pycache__/
-*.pyc
+*.py[cod]
 *.sqlite3
 *.log
+
+# ---- Virtualenv ----
+.venv/
+venv/
+
+# ---- Secrets ----
 .env
 .env.*
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+
+# ---- Django build artifacts ----
+staticfiles/
+static_root/
 media/
+
+# ---- Coverage / testing ----
+htmlcov/
+coverage.xml
+
+# ---- Editors ----
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ---- Front-end (optional) ----
+node_modules/
+
+# ---- Others ----
 db.sqlite3
 poetry.lock
-
