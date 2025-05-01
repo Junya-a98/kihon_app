@@ -1,0 +1,16 @@
+FROM node:20
+
+WORKDIR /front
+
+RUN corepack enable
+
+# 依存ファイルだけを先にコピー（キャッシュを最大化）
+COPY package.json pnpm-lock.yaml* ./
+
+# ここで先にinstall（ホストで壊れててもOK）
+RUN pnpm install --frozen-lockfile
+
+# ソースコード全体を後からコピー
+COPY . .
+
+CMD ["pnpm", "run", "dev", "--host"]
