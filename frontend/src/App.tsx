@@ -7,6 +7,7 @@ import Home   from "./pages/Home";
 import Quiz   from "./pages/Quiz";
 import Result from "./pages/Result";
 import Login  from "./pages/Login";
+import Register from "./pages/Register";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Routes>
           {/* 1. こちらは常に開放 */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} /> 
 
           {/* 2. ここから下は認証必須 */}
           <Route element={<PrivateRoute/>}>

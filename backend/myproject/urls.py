@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.views.generic import TemplateView
-
+from accounts.views import MeAPIView
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -16,7 +16,6 @@ from exams.api import (
     year_list,
     #AnswerViewSet,
 )
-
 router = DefaultRouter()
 router.register(r'questions', QuestionViewSet, basename='question')
 #router.register(r'answers',   AnswerViewSet,   basename='answer')  # optional
@@ -38,4 +37,6 @@ urlpatterns = [
 
     # カスタムで「年度一覧だけ返す」APIが必要なら別パスに
     path('api/years/', year_list, name='year-list'),
+
+    path("api/users/me/", MeAPIView.as_view(), name="users-me"),
 ]
