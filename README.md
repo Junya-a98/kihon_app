@@ -45,7 +45,4 @@ docker compose exec backend python manage.py createsuperuser
 docker compose exec backend python manage.py shell -c \
 'from django.contrib.auth import get_user_model as g; g().objects.create_user("sample", password="Sample123!")'
 
-# インポート例（令和6年度）
-docker compose exec backend \
-  python /app/scripts/import_fe_questions.py \
-    --csv /app/data/reiwa6_only.csv --year R06 --part A
+

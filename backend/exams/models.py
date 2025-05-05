@@ -6,12 +6,12 @@ from django.db import models
 
 class Answer(models.Model):
     user      = models.ForeignKey(
-        settings.AUTH_USER_MODEL, null=True, blank=True,
-        on_delete=models.SET_NULL
+        settings.AUTH_USER_MODEL, null=False, blank=True,
+        on_delete=models.CASCADE
     )
     question  = models.ForeignKey("Question", on_delete=models.CASCADE)
     is_correct = models.BooleanField()
-    guess     = models.CharField(max_length=1)        # a/b/c/d
+    guess= models.CharField(max_length=1)        # a/b/c/d
     solved_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -35,5 +35,6 @@ class Question(models.Model):
     # 追加すると便利
     exam_year  = models.CharField(max_length=8, default='')
     exam_part  = models.CharField(max_length=16, default='')
+    
     def __str__(self):
         return self.text[:30]

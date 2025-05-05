@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 import styles from "./css/Register.module.css";
 
 export default function Register() {
@@ -16,16 +17,16 @@ export default function Register() {
       await axios.post("/api/register/", { username, password, email });
       alert("登録が完了しました。ログインページへ移動します。");
       navigate("/login", { replace: true });
-    } catch (err) {
-      console.error("❌ registration failed", err);
-      alert("登録に失敗しました。");
+    } catch (err:any) {
+        console.error("registration failed", err.response?.data);
+        alert("登録に失敗しました：" + JSON.stringify(err.response?.data));
     }
   };
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>
-        基本情報技術者試験アプリ
+        基本情報技術者試験対策アプリ
         <br />
         新規登録
       </h1>
